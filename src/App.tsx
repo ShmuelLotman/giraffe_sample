@@ -88,7 +88,6 @@ const App: FC = (): JSX.Element => {
   }, [tableState.graphType])
 
   useEffect((): (() => void) => {
-    console.log("here")
     getFormatPlotData()
     const interval = setInterval(getFormatPlotData, REFRESH_RATE)
     return () => clearInterval(interval)
