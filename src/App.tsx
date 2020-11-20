@@ -5,6 +5,7 @@ import {
   fromFlux,
   HistogramLayerConfig,
   LayerConfig,
+  FromFluxResult,
   Table,
 } from "@influxdata/giraffe"
 const REFRESH_RATE = 40000
@@ -73,7 +74,7 @@ const App: FC = (): JSX.Element => {
     const type = tableState.graphType
     const res = await axios.get(`${url}/${type}`)
 
-    let parsedData: any
+    let parsedData: FromFluxResult
 
     try {
       parsedData = fromFlux(res.data)
