@@ -1,40 +1,40 @@
-#!/usr/bin/env node
-const express = require("express")
-const axios = require("axios")
-var cors = require("cors")
+require('dotenv').config()
+const express = require('express')
+const axios = require('axios')
+var cors = require('cors')
 
 const DEFAULT_PORT = 8617
-const url = process.env.INFLUX_URL
-const token = process.env.INFLUX_TOKEN
-const orgID = process.env.ORG_ID
 
+const parsed = require('dotenv').config().parsed
+const url = parsed.INFLUX_URL
+const token = parsed.INFLUX_TOKEN
+const orgID = parsed.ORG_ID
 const proxy = axios.create({
   baseURL: url,
   headers: {
     Authorization: `Token ${token}`,
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 })
 
 const app = express()
 app.use(cors())
 
-app.get("/plot/:type", async (req, res) => {
+app.get('/plot/:type', async (req, res) => {
   const getQuery = () => {
     switch (req.params.type) {
-      case "scatter":
-        return `from(bucket: "defbuck")
+      case 'scatter':
+        return `from(bucket: "slotman's Bucket")
         |> range(start: -5m)
         |> filter(fn: (r) => r["_measurement"] == "cpu")
         |> filter(fn: (r) => r["_field"] == "usage_guest" or r["_field"] == "usage_idle" or r["_field"] == "usage_system" or r["_field"] == "usage_user")
         |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)
         |> yield(name: "mean")`
       default:
-        return `from(bucket: "defbuck")
-        |> range(start: -1h)
-        |> filter(fn: (r) => r["_measurement"] == "processes")
-        |> filter(fn: (r) => r["_field"] == "running" or r["_field"] == "stopped" or r["_field"] == "idle")
-        |> filter(fn: (r) => r["host"] == "Shmuels-MBP")
+        return `from(bucket: "slotman's Bucket")
+        |> range(start: -5m)
+        |> filter(fn: (r) => r["_measurement"] == "cpu")
+        |> filter(fn: (r) => r["_field"] == "usage_guest" or r["_field"] == "usage_idle" or r["_field"] == "usage_system" or r["_field"] == "usage_user")
         |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)
         |> yield(name: "mean")`
     }
@@ -42,57 +42,57 @@ app.get("/plot/:type", async (req, res) => {
 
   try {
     const response = await proxy.request({
-      method: "post",
-      url: "/api/v2/query",
+      method: 'post',
+      url: '/api/v2/query',
       params: {
         orgID,
       },
       data: {
         query: getQuery().trim(),
         extern: {
-          type: "File",
+          type: 'File',
           package: null,
           imports: null,
           body: [
             {
-              type: "OptionStatement",
+              type: 'OptionStatement',
               assignment: {
-                type: "VariableAssignment",
-                id: { type: "Identifier", name: "v" },
+                type: 'VariableAssignment',
+                id: { type: 'Identifier', name: 'v' },
                 init: {
-                  type: "ObjectExpression",
+                  type: 'ObjectExpression',
                   properties: [
                     {
-                      type: "Property",
-                      key: { type: "Identifier", name: "bucket" },
-                      value: { type: "StringLiteral", value: "" },
+                      type: 'Property',
+                      key: { type: 'Identifier', name: 'bucket' },
+                      value: { type: 'StringLiteral', value: '' },
                     },
                     {
-                      type: "Property",
-                      key: { type: "Identifier", name: "timeRangeStart" },
+                      type: 'Property',
+                      key: { type: 'Identifier', name: 'timeRangeStart' },
                       value: {
-                        type: "UnaryExpression",
-                        operator: "-",
+                        type: 'UnaryExpression',
+                        operator: '-',
                         argument: {
-                          type: "DurationLiteral",
-                          values: [{ magnitude: 5, unit: "m" }],
+                          type: 'DurationLiteral',
+                          values: [{ magnitude: 5, unit: 'm' }],
                         },
                       },
                     },
                     {
-                      type: "Property",
-                      key: { type: "Identifier", name: "timeRangeStop" },
+                      type: 'Property',
+                      key: { type: 'Identifier', name: 'timeRangeStop' },
                       value: {
-                        type: "CallExpression",
-                        callee: { type: "Identifier", name: "now" },
+                        type: 'CallExpression',
+                        callee: { type: 'Identifier', name: 'now' },
                       },
                     },
                     {
-                      type: "Property",
-                      key: { type: "Identifier", name: "windowPeriod" },
+                      type: 'Property',
+                      key: { type: 'Identifier', name: 'windowPeriod' },
                       value: {
-                        type: "DurationLiteral",
-                        values: [{ magnitude: 10000, unit: "ms" }],
+                        type: 'DurationLiteral',
+                        values: [{ magnitude: 10000, unit: 'ms' }],
                       },
                     },
                   ],
@@ -101,7 +101,7 @@ app.get("/plot/:type", async (req, res) => {
             },
           ],
         },
-        dialect: { annotations: ["group", "datatype", "default"] },
+        dialect: { annotations: ['group', 'datatype', 'default'] },
       },
     })
 

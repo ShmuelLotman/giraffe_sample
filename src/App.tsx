@@ -1,5 +1,5 @@
-import React, { FC, useState, useEffect, useCallback, ChangeEvent } from "react"
-import axios from "axios"
+import React, { FC, useState, useEffect, useCallback, ChangeEvent } from 'react'
+import axios from 'axios'
 import {
   Plot,
   fromFlux,
@@ -7,9 +7,9 @@ import {
   LayerConfig,
   FromFluxResult,
   Table,
-} from "@influxdata/giraffe"
+} from '@influxdata/giraffe'
 const REFRESH_RATE = 40000
-const url = "http://localhost:8617/plot"
+const url = 'http://localhost:8617/plot'
 
 interface StateConfig {
   table: Table | []
@@ -17,39 +17,39 @@ interface StateConfig {
   graphType: string
 }
 const style = {
-  width: "calc(70vw - 20px)",
-  height: "calc(70vh - 20px)",
-  margin: "40px",
+  width: 'calc(70vw - 20px)',
+  height: 'calc(70vh - 20px)',
+  margin: '40px',
 }
 
 const setConfigs = (graphType: string): LayerConfig => {
   switch (graphType) {
-    case "histogram":
+    case 'histogram':
       return {
-        type: "histogram",
-        x: "_value",
-        fill: ["_field"],
-        position: "stacked",
+        type: 'histogram',
+        x: '_value',
+        fill: ['_field'],
+        position: 'stacked',
         binCount: 30,
-        colors: ["#468352", "#c885b5", "#ee7015"],
+        colors: ['#468352', '#c885b5', '#ee7015'],
         fillOpacity: 1,
       }
-    case "scatter":
+    case 'scatter':
       return {
-        type: "scatter",
-        x: "_time",
-        y: "_value",
-        fill: ["_field"],
-        colors: ["#468352", "#c885b5", "#ee7015"],
+        type: 'scatter',
+        x: '_time',
+        y: '_value',
+        fill: ['_field'],
+        colors: ['#468352', '#c885b5', '#ee7015'],
       }
     default:
       return {
-        type: "histogram",
-        x: "_value",
-        fill: ["_field"],
-        position: "stacked",
+        type: 'histogram',
+        x: '_value',
+        fill: ['_field'],
+        position: 'stacked',
         binCount: 30,
-        colors: ["#468352", "#c885b5", "#ee7015"],
+        colors: ['#468352', '#c885b5', '#ee7015'],
         fillOpacity: 1,
       }
   }
@@ -59,21 +59,20 @@ const App: FC = (): JSX.Element => {
   const [tableState, setTableState] = useState<StateConfig>({
     table: [],
     layer: {
-      type: "histogram",
-      x: "_value",
-      fill: ["_field"],
-      position: "stacked",
+      type: 'histogram',
+      x: '_value',
+      fill: ['_field'],
+      position: 'stacked',
       binCount: 30,
-      colors: ["#468352", "#c885b5", "#ee7015"],
+      colors: ['#468352', '#c885b5', '#ee7015'],
       fillOpacity: 1,
     },
-    graphType: "histogram",
+    graphType: 'histogram',
   })
 
   const getFormatPlotData = useCallback(async (): Promise<void> => {
     const type = tableState.graphType
     const res = await axios.get(`${url}/${type}`)
-
     let parsedData: FromFluxResult
 
     try {
@@ -81,9 +80,10 @@ const App: FC = (): JSX.Element => {
       setTableState((prev: any) => ({
         ...prev,
         table: parsedData.table,
-        fill: ["_field"],
+        fill: ['_field'],
       }))
     } catch (error) {
+      console.log('here')
       console.log(error)
     }
   }, [tableState.graphType])
